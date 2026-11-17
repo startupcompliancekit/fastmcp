@@ -103,6 +103,40 @@ client = Client("https://api.example.com/mcp")
 
 See [Transports](/clients/transports) for detailed configuration options including authentication headers, session persistence, and multi-server configurations.
 
+### Public HTTP discovery
+
+Use a public HTTP server to try tool discovery and calls before configuring a private service. [Chain.Love](https://chain.love) exposes registry-discovery tools for Web3 infrastructure without an API key. This example discovers the network keys, checks the Filecoin categories, and requests three explorer entries:
+
+```python
+import asyncio
+
+from fastmcp import Client
+
+
+async def main():
+    async with Client("https://app.chain.love/mcp", timeout=30) as client:
+        tools = await client.list_tools()
+        print([tool.name for tool in tools])
+
+        networks = await client.call_tool("discover_networks", {})
+        print(networks.data)
+
+        categories = await client.call_tool(
+            "discover_categories", {"chain": "filecoin"}
+        )
+        print(categories.data)
+
+        explorers = await client.call_tool(
+            "search", {"chain": "filecoin", "category": "explorers", "limit": 3}
+        )
+        print(explorers.data)
+
+
+asyncio.run(main())
+```
+
+The results describe services in the registry. Choose network and category keys from the discovery responses when adapting the query. Calling a discovered provider is a separate operation with its own access requirements; see the [Chain.Love gateway documentation](https://www.chain.love/mcp-gateway).
+
 ## Configuration-Based Clients
 
 <VersionBadge version="2.4.0" />
