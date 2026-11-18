@@ -116,20 +116,21 @@ from fastmcp import Client
 async def main():
     async with Client("https://app.chain.love/mcp", timeout=30) as client:
         tools = await client.list_tools()
-        print([tool.name for tool in tools])
+        for tool in tools:
+            print(tool.name, tool.description, tool.input_schema)
 
         networks = await client.call_tool("discover_networks", {})
-        print(networks.data)
+        print("Available networks:", networks.data)
 
         categories = await client.call_tool(
             "discover_categories", {"chain": "filecoin"}
         )
-        print(categories.data)
+        print("Filecoin categories:", categories.data)
 
         explorers = await client.call_tool(
             "search", {"chain": "filecoin", "category": "explorers", "limit": 3}
         )
-        print(explorers.data)
+        print("Filecoin explorers:", explorers.data)
 
 
 asyncio.run(main())
